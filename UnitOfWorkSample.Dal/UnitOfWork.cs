@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,8 +17,7 @@ namespace UnitOfWorkSample.Dal
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private IRepository<ClientEntity, int> _ClientRepository;
-        private IRepository<FactureEntity, int> _FactureRepository;
+ 
         private SqlConnection _conn;
         private SqlTransaction _transaction;
 
@@ -25,10 +25,10 @@ namespace UnitOfWorkSample.Dal
             
             get 
             {
-                _ClientRepository = _ClientRepository ?? new ClientRepository(_transaction);
+                
 
-                return _ClientRepository;
-            
+                return new ClientRepository(_transaction);
+
             } 
         
         }
@@ -36,10 +36,7 @@ namespace UnitOfWorkSample.Dal
         public IRepository<FactureEntity, int> FactureRepository {
             get
             {
-                _FactureRepository = _FactureRepository ?? new FactureRepository(_transaction);
-
-                return _FactureRepository;
-
+                return new FactureRepository(_transaction);
             }
         }
 
@@ -79,6 +76,8 @@ namespace UnitOfWorkSample.Dal
              
         }
 
+      
+
         public bool Commit()
         {
             bool isOk = false;
@@ -90,7 +89,7 @@ namespace UnitOfWorkSample.Dal
             catch
             {
                 _transaction.Rollback();
-                throw;
+                
             }
             finally
             {
@@ -100,8 +99,12 @@ namespace UnitOfWorkSample.Dal
             return isOk;
         }
 
-        protected virtual void Dispose(bool info = true)
+       
+
+        public void Dispose()
         {
+
+
             if (_transaction != null)
             {
                 Commit();
@@ -113,15 +116,7 @@ namespace UnitOfWorkSample.Dal
             {
                 _conn.Dispose();
                 _conn = null;
-            }
-            GC.SuppressFinalize(this);
-        }
-
-        public void Dispose()
-        {
-
-
-            Dispose(true);
+            } 
         }
     }
 }

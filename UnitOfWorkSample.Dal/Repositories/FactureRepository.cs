@@ -9,7 +9,7 @@ using UnitOfWorkSample.Dal.Interfaces;
 
 namespace UnitOfWorkSample.Dal.Repositories
 {
-    public class FactureRepository : IRepository<FactureEntity,int>
+    internal class FactureRepository : IRepository<FactureEntity,int>
     {
         private readonly SqlTransaction _transaction;
 
